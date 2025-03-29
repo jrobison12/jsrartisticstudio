@@ -5,7 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function Gallery() {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory] = useState('all');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const birdSubcategories = [

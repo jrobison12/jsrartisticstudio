@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About the Artist | Jeanette S. Robison',
@@ -48,7 +49,7 @@ export default function About() {
                 reveals to those who take the time to observe and appreciate its magnificence.
               </p>
               <p>
-                Whether I'm creating portraits that capture the essence of my subjects or photographing 
+                Whether I&apos;m creating portraits that capture the essence of my subjects or photographing 
                 the delicate interplay of light and shadow in nature, my goal is to create works that 
                 resonate with emotion and authenticity.
               </p>
@@ -119,9 +120,9 @@ export default function About() {
             <h2 className="text-3xl font-serif text-[#2c392c] mb-6">A Personal Note</h2>
             <div className="text-[#2c392c]/80 space-y-4">
               <p>
-                Based in New Castle, Pennsylvania, I find endless inspiration in the region's diverse 
-                landscapes and wildlife. When I'm not in my studio creating portraits or processing 
-                photographs, you'll likely find me exploring nature, camera in hand, ready to capture 
+                Based in New Castle, Pennsylvania, I find endless inspiration in the region&apos;s diverse 
+                landscapes and wildlife. When I&apos;m not in my studio creating portraits or processing 
+                photographs, you&apos;ll likely find me exploring nature, camera in hand, ready to capture 
                 the next beautiful moment.
               </p>
               <p>
@@ -145,20 +146,20 @@ export default function About() {
             I'd love to connect with you.
           </p>
           <div className="flex justify-center gap-4">
-            <a
+            <Link
               href="/commission-form"
               className="px-6 py-3 bg-[#d4a373] text-white rounded-full
                        hover:bg-[#e6c29b] transition-colors"
             >
               Commission a Portrait
-            </a>
-            <a
+            </Link>
+            <Link
               href="/gallery"
               className="px-6 py-3 bg-transparent border-2 border-[#d4a373] text-[#e9e2d3] rounded-full
                        hover:bg-[#d4a373] hover:text-white transition-colors"
             >
               View Gallery
-            </a>
+            </Link>
           </div>
         </div>
       </section>

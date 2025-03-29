@@ -54,7 +54,7 @@ export default function Home() {
     }, 5000); // Change image every 5 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [collections.length]); // Added collections.length as dependency
 
   // Check if the announcement should be shown (until July 28th, 2025)
   const announcementEndDate = new Date('2025-07-28T23:59:59');
@@ -73,7 +73,7 @@ export default function Home() {
                     Join Me at the Elk Expo!
                   </h2>
                   <p className="text-[#2c392c]/80 text-base md:text-lg mb-3">
-                    I'm excited to announce that I'll be exhibiting at the Elk Expo in Benezette, Pennsylvania.
+                    I&apos;m excited to announce that I&apos;ll be exhibiting at the Elk Expo in Benezette, Pennsylvania.
                   </p>
                   <div className="flex flex-wrap gap-4 text-[#2c392c]/90">
                     <div className="flex items-center gap-2">
@@ -140,14 +140,14 @@ export default function Home() {
             <p className="text-2xl md:text-3xl text-white mb-12 drop-shadow-lg">
               Wildlife Art & Nature Photography
             </p>
-            <a
+            <Link
               href="/gallery"
               className="inline-block bg-[#d4a373] text-white px-8 py-3 rounded-full 
                        hover:bg-[#e6c29b] transition-colors text-lg font-medium
                        shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
             >
               View Gallery
-            </a>
+            </Link>
           </div>
         </div>
 

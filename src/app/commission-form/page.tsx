@@ -93,10 +93,10 @@ export default function CommissionForm() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
                 >
                   <option value="">Select a size</option>
-                  <option value="8x10">8x10"</option>
-                  <option value="11x14">11x14"</option>
-                  <option value="16x20">16x20"</option>
-                  <option value="18x24">18x24"</option>
+                  <option value="8x10">8&quot; x 10&quot;</option>
+                  <option value="11x14">11&quot; x 14&quot;</option>
+                  <option value="16x20">16&quot; x 20&quot;</option>
+                  <option value="18x24">18&quot; x 24&quot;</option>
                 </select>
               </div>
               <div>
