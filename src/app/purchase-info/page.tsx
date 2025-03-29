@@ -70,7 +70,7 @@ export default function PurchaseInfo() {
                 <div className="space-y-4">
                   {type.prices.map((price) => (
                     <div key={price.size} className="flex justify-between items-center whitespace-nowrap">
-                      <span className="text-[#2c392c] text-lg">{price.size}"</span>
+                      <span className="text-[#2c392c] text-lg">{price.size}&quot;</span>
                       <span className="text-lg font-medium text-[#2c392c] ml-8">${price.price}</span>
                     </div>
                   ))}

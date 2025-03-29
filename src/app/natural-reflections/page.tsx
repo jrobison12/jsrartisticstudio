@@ -32,7 +32,7 @@ export default function NaturalReflections() {
             Natural Reflections
           </h1>
           <p className="text-lg text-[#2c392c]/80 max-w-2xl mx-auto">
-            A collection of written works exploring the beauty, wonder, and wisdom found in nature's embrace.
+            A collection of written works exploring the beauty, wonder, and wisdom found in nature&apos;s embrace.
             Join me on a journey through personal observations and reflections on wildlife and the great outdoors.
           </p>
         </header>

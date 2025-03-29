@@ -63,7 +63,7 @@ export default function About() {
               <div className="space-y-6 text-[#2c392c]/80">
                 <p>
                   My artistic journey began with a deep appreciation for the natural world and a desire 
-                  to capture its beauty through various mediums. Over the years, I've developed expertise 
+                  to capture its beauty through various mediums. Over the years, I&apos;ve developed expertise 
                   in multiple artistic techniques, including:
                 </p>
                 <ul className="grid md:grid-cols-2 gap-4 mt-4">
@@ -102,7 +102,7 @@ export default function About() {
               <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-xl font-serif text-[#2c392c] mb-4">Nature Photography</h3>
                 <p className="text-[#2c392c]/80">
-                  Documenting the beauty of Pennsylvania's wildlife and landscapes through the lens 
+                  Documenting the beauty of Pennsylvania&apos;s wildlife and landscapes through the lens 
                   of my camera.
                 </p>
               </div>
@@ -139,11 +139,11 @@ export default function About() {
       <section className="py-16 bg-[#2c392c]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-serif text-[#e9e2d3] mb-6">
-            Let's Create Something Beautiful Together
+            Let&apos;s Create Something Beautiful Together
           </h2>
           <p className="text-[#e9e2d3]/80 mb-8">
-            Whether you're interested in commissioning a portrait or exploring my nature photography, 
-            I'd love to connect with you.
+            Whether you&apos;re interested in commissioning a portrait or exploring my nature photography, 
+            I&apos;d love to connect with you.
           </p>
           <div className="flex justify-center gap-4">
             <Link
