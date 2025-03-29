@@ -1,0 +1,16 @@
+To complete the setup, you'll need to add the following images to the /public/images directory:
+
+1. landscape-placeholder.jpg - A scenic mountain or forest landscape photo
+2. wildlife-placeholder.jpg - A photo of wildlife like an elk or deer
+3. birds-blooms-placeholder.jpg - A photo of a bird with flowers
+4. butterfly-placeholder.jpg - A photo of a butterfly on a flower
+5. weathered-wood-placeholder.jpg - A close-up of weathered wood texture
+6. stained-glass-placeholder.jpg - A photo of colorful stained glass
+7. hero-placeholder.jpg - A dramatic nature landscape for the hero section
+
+For testing purposes, you can use free stock photos from:
+- Unsplash (https://unsplash.com)
+- Pexels (https://pexels.com)
+- or any other royalty-free image source
+
+Make sure to download and rename the images to match the filenames above. 
