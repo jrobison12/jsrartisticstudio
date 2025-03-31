@@ -11,15 +11,12 @@ config({ path: resolve(__dirname, '../../../.env.local') });
 let pool: Pool | null = null;
 
 function getPool() {
+  // During build time, return null
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+    return null;
+  }
+
   if (!process.env.DATABASE_URL) {
-    // During build time, return a mock pool
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
-      return {
-        query: async () => ({ rows: [] }),
-        execute: async () => ({ rows: [] }),
-        end: async () => {},
-      } as unknown as Pool;
-    }
     throw new Error('DATABASE_URL environment variable is not set');
   }
   
@@ -32,4 +29,5 @@ function getPool() {
 }
 
 // Create and export the db instance
-export const db = drizzle(getPool(), { schema }); 
+const poolInstance = getPool();
+export const db = poolInstance ? drizzle(poolInstance, { schema }) : null; 

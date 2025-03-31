@@ -10,7 +10,20 @@ interface AnalyticsData {
   recentActivity: Array<{ page_path: string; timestamp: Date; session_id: string }>;
 }
 
+// Default empty analytics data
+const defaultAnalyticsData: AnalyticsData = {
+  totalViews: 0,
+  uniqueVisitors: 0,
+  viewsByPage: [],
+  recentActivity: []
+};
+
 export async function GET() {
+  // During build time, return static data
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+    return NextResponse.json(defaultAnalyticsData);
+  }
+
   try {
     // Verify admin authentication
     const cookieStore = await cookies();
@@ -20,16 +33,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Initialize default response
-    const analyticsData: AnalyticsData = {
-      totalViews: 0,
-      uniqueVisitors: 0,
-      viewsByPage: [],
-      recentActivity: []
-    };
+    // Initialize response with default data
+    const analyticsData: AnalyticsData = { ...defaultAnalyticsData };
 
-    // During build time, return empty data
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+    // If db is null, return default data
+    if (!db) {
       return NextResponse.json(analyticsData);
     }
 
@@ -92,9 +100,6 @@ export async function GET() {
     return NextResponse.json(analyticsData);
   } catch (error) {
     console.error('Analytics fetch error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch analytics data. Please try again later.' },
-      { status: 500 }
-    );
+    return NextResponse.json(defaultAnalyticsData);
   }
 } 
