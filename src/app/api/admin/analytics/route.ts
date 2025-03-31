@@ -28,6 +28,11 @@ export async function GET() {
       recentActivity: []
     };
 
+    // During build time, return empty data
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+      return NextResponse.json(analyticsData);
+    }
+
     // Test database connection first
     try {
       await db.execute(sql`SELECT 1`);

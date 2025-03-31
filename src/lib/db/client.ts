@@ -12,6 +12,14 @@ let pool: Pool | null = null;
 
 function getPool() {
   if (!process.env.DATABASE_URL) {
+    // During build time, return a mock pool
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+      return {
+        query: async () => ({ rows: [] }),
+        execute: async () => ({ rows: [] }),
+        end: async () => {},
+      } as unknown as Pool;
+    }
     throw new Error('DATABASE_URL environment variable is not set');
   }
   
