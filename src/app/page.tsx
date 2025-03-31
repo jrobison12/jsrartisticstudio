@@ -8,37 +8,37 @@ export default function Home() {
   const collections = [
     {
       title: "Landscapes",
-      image: "/images/landscape.jpg",
+      image: "/images/landscapes/landscape.jpg",
       alt: "Scenic mountain landscape at sunset with dramatic clouds",
       href: "/gallery/landscapes"
     },
     {
       title: "Wildlife",
-      image: "/images/wildlife.jpg",
+      image: "/images/wildlife",
       alt: "Majestic elk in natural mountain habitat",
       href: "/gallery/wildlife"
     },
     {
       title: "Birds & Blooms",
-      image: "/images/birds-blooms.jpg",
+      image: "/images/birds-blooms/birds-blooms.jpg",
       alt: "Hummingbird feeding on vibrant flowers",
       href: "/gallery/birds-blooms"
     },
     {
       title: "Butterflies & Moths",
-      image: "/images/butterfly.jpg",
+      image: "/images/butterflies",
       alt: "Monarch butterfly with orange and black wings on flower",
       href: "/gallery/butterflies"
     },
     {
       title: "Weathered Wood",
-      image: "/images/weathered-wood.jpg",
+      image: "/images/weathered-wood",
       alt: "Historic wooden watermill with water wheel",
       href: "/gallery/weathered-wood"
     },
     {
       title: "Stained Glass",
-      image: "/images/stained-glass.jpg",
+      image: "/images/stained-glass",
       alt: "Handcrafted stained glass art piece",
       href: "/gallery/stained-glass"
     }
