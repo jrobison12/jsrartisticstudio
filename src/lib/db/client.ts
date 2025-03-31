@@ -7,14 +7,14 @@ import { resolve } from 'path';
 // Load environment variables from .env.local
 config({ path: resolve(__dirname, '../../../.env.local') });
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set');
-}
-
 // Create a singleton pool instance
-let pool: Pool;
+let pool: Pool | null = null;
 
 function getPool() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,

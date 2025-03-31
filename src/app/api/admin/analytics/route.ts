@@ -20,17 +20,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Test database connection first
-    try {
-      await db.execute(sql`SELECT 1`);
-    } catch (error) {
-      console.error('Database connection test failed:', error);
-      return NextResponse.json(
-        { error: 'Database connection failed. Please check database configuration.' },
-        { status: 500 }
-      );
-    }
-
     // Initialize default response
     const analyticsData: AnalyticsData = {
       totalViews: 0,
@@ -38,6 +27,14 @@ export async function GET() {
       viewsByPage: [],
       recentActivity: []
     };
+
+    // Test database connection first
+    try {
+      await db.execute(sql`SELECT 1`);
+    } catch (error) {
+      console.error('Database connection test failed:', error);
+      return NextResponse.json(analyticsData);
+    }
 
     // Get total page views
     try {
