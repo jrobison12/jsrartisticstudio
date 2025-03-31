@@ -1,11 +1,45 @@
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Commission Form | Jeanette S. Robison',
-  description: 'Submit your portrait commission request',
-};
+import { useState, useRef } from 'react';
 
 export default function CommissionForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('/api/submit-commission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit form');
+      }
+
+      setSubmitStatus('success');
+      formRef.current?.reset();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f1ea] py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +52,7 @@ export default function CommissionForm() {
         </div>
 
         {/* Commission Form */}
-        <form className="bg-white rounded-lg shadow-lg p-8">
+        <form ref={formRef} onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
           {/* Contact Information */}
           <div className="mb-10">
             <h2 className="text-2xl font-serif text-[#2c392c] mb-6">Contact Information</h2>
@@ -30,7 +64,7 @@ export default function CommissionForm() {
                   id="firstName"
                   name="firstName"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 />
               </div>
               <div>
@@ -40,7 +74,7 @@ export default function CommissionForm() {
                   id="lastName"
                   name="lastName"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 />
               </div>
               <div>
@@ -50,7 +84,7 @@ export default function CommissionForm() {
                   id="email"
                   name="email"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 />
               </div>
               <div>
@@ -60,7 +94,7 @@ export default function CommissionForm() {
                   id="phone"
                   name="phone"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 />
               </div>
             </div>
@@ -76,12 +110,12 @@ export default function CommissionForm() {
                   id="medium"
                   name="medium"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 >
-                  <option value="">Select a medium</option>
-                  <option value="pastel">Pastel Portrait</option>
-                  <option value="acrylic">Acrylic Portrait</option>
-                  <option value="oil">Oil Portrait</option>
+                  <option value="" className="text-[#2c392c]">Select a medium</option>
+                  <option value="pastel" className="text-[#2c392c]">Pastel Portrait</option>
+                  <option value="acrylic" className="text-[#2c392c]">Acrylic Portrait</option>
+                  <option value="oil" className="text-[#2c392c]">Oil Portrait</option>
                 </select>
               </div>
               <div>
@@ -90,13 +124,13 @@ export default function CommissionForm() {
                   id="size"
                   name="size"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 >
-                  <option value="">Select a size</option>
-                  <option value="8x10">8&quot; x 10&quot;</option>
-                  <option value="11x14">11&quot; x 14&quot;</option>
-                  <option value="16x20">16&quot; x 20&quot;</option>
-                  <option value="18x24">18&quot; x 24&quot;</option>
+                  <option value="" className="text-[#2c392c]">Select a size</option>
+                  <option value="8x10" className="text-[#2c392c]">8" x 10"</option>
+                  <option value="11x14" className="text-[#2c392c]">11" x 14"</option>
+                  <option value="16x20" className="text-[#2c392c]">16" x 20"</option>
+                  <option value="18x24" className="text-[#2c392c]">18" x 24"</option>
                 </select>
               </div>
               <div>
@@ -105,13 +139,13 @@ export default function CommissionForm() {
                   id="subjects"
                   name="subjects"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 >
-                  <option value="1">1 (Base Price)</option>
-                  <option value="2">2 (+50%)</option>
-                  <option value="3">3 (+100%)</option>
-                  <option value="4">4 (+150%)</option>
-                  <option value="more">5 or more (Contact for pricing)</option>
+                  <option value="1" className="text-[#2c392c]">1 (Base Price)</option>
+                  <option value="2" className="text-[#2c392c]">2 (+50%)</option>
+                  <option value="3" className="text-[#2c392c]">3 (+100%)</option>
+                  <option value="4" className="text-[#2c392c]">4 (+150%)</option>
+                  <option value="more" className="text-[#2c392c]">5 or more (Contact for pricing)</option>
                 </select>
               </div>
               <div>
@@ -120,10 +154,10 @@ export default function CommissionForm() {
                   id="style"
                   name="style"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 >
-                  <option value="head">Head and Shoulders (Base Price)</option>
-                  <option value="full">Full Figure (+50%)</option>
+                  <option value="head" className="text-[#2c392c]">Head and Shoulders (Base Price)</option>
+                  <option value="full" className="text-[#2c392c]">Full Figure (+50%)</option>
                 </select>
               </div>
               <div>
@@ -132,10 +166,10 @@ export default function CommissionForm() {
                   id="background"
                   name="background"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373] text-[#2c392c]"
                 >
-                  <option value="simple">Simple Background (Base Price)</option>
-                  <option value="detailed">Detailed Background (+50%)</option>
+                  <option value="simple" className="text-[#2c392c]">Simple Background (Base Price)</option>
+                  <option value="detailed" className="text-[#2c392c]">Detailed Background (+50%)</option>
                 </select>
               </div>
               <div>
@@ -145,7 +179,9 @@ export default function CommissionForm() {
                   name="description"
                   rows={4}
                   placeholder="Please describe any specific requirements, preferences, or questions you have about your portrait commission."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#d4a373]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-[#d4a373] 
+                           text-[#2c392c] placeholder-[#2c392c]/70"
                 ></textarea>
               </div>
             </div>
@@ -162,12 +198,24 @@ export default function CommissionForm() {
 
           {/* Submit Button */}
           <div className="text-center">
+            {submitStatus === 'success' && (
+              <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+                Thank you for your commission request! I will review your details and get back to you soon.
+              </div>
+            )}
+            {submitStatus === 'error' && (
+              <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+                There was an error submitting your request. Please try again or contact me directly.
+              </div>
+            )}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="px-8 py-3 bg-[#d4a373] text-white rounded-full
-                       hover:bg-[#e6c29b] transition-colors text-lg font-medium"
+                       hover:bg-[#e6c29b] transition-colors text-lg font-medium
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Commission Request
+              {isSubmitting ? 'Submitting...' : 'Submit Commission Request'}
             </button>
           </div>
         </form>

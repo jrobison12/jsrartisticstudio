@@ -18,7 +18,7 @@ export default function About() {
               <h1 className="text-4xl md:text-5xl font-serif text-[#e9e2d3] mb-6">
                 Meet Jeanette S. Robison
               </h1>
-              <p className="text-xl text-[#e9e2d3]/90 leading-relaxed">
+              <p className="text-xl text-[#e9e2d3]/90 leading-relaxed mb-6">
                 Artist, Photographer, and Nature Enthusiast
               </p>
             </div>
@@ -67,20 +67,20 @@ export default function About() {
                   in multiple artistic techniques, including:
                 </p>
                 <ul className="grid md:grid-cols-2 gap-4 mt-4">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4a373] opacity-60 text-sm mt-[6px]">●</span>
+                  <li className="flex items-center gap-3">
+                    <span className="text-[#d4a373] opacity-60 text-lg">•</span>
                     <span>Portrait artistry in pastel, acrylic, and oil</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4a373] opacity-60 text-sm mt-[6px]">●</span>
+                  <li className="flex items-center gap-3">
+                    <span className="text-[#d4a373] opacity-60 text-lg">•</span>
                     <span>Nature and wildlife photography</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4a373] opacity-60 text-sm mt-[6px]">●</span>
+                  <li className="flex items-center gap-3">
+                    <span className="text-[#d4a373] opacity-60 text-lg">•</span>
                     <span>Landscape composition</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4a373] opacity-60 text-sm mt-[6px]">●</span>
+                  <li className="flex items-center gap-3">
+                    <span className="text-[#d4a373] opacity-60 text-lg">•</span>
                     <span>Wildlife observation and documentation</span>
                   </li>
                 </ul>
