@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 export default function Cart() {
-  const { items, removeItem, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
   const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
 
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const shipping = 10; // Fixed shipping cost
   const total = subtotal + shipping;
 
@@ -27,7 +27,7 @@ export default function Cart() {
     }, 2000);
   };
 
-  if (items.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-[#f4f1ea]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -55,7 +55,7 @@ export default function Cart() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
+            {cartItems.map((item) => (
               <div key={`${item.id}-${item.size}`} className="bg-white rounded-lg shadow-lg p-4 flex gap-4">
                 <div className="relative w-24 h-24">
                   <Image
@@ -85,7 +85,7 @@ export default function Cart() {
                       </button>
                     </div>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeFromCart(item.id)}
                       className="text-[#2c392c]/60 hover:text-[#d4a373] transition-colors text-sm"
                     >
                       Remove

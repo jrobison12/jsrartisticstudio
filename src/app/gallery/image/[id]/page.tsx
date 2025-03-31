@@ -17,14 +17,14 @@ interface ImageDetails {
 interface PrintSize {
   size: string;
   price: number;
-  dimensions: string;
+  description: string;
 }
 
 const PRINT_SIZES: PrintSize[] = [
-  { size: 'small', price: 25.00, dimensions: '8x10"' },
-  { size: 'medium', price: 45.00, dimensions: '11x14"' },
-  { size: 'large', price: 75.00, dimensions: '16x20"' },
-  { size: 'xlarge', price: 125.00, dimensions: '20x24"' }
+  { size: 'small', price: 25.00, description: '8x10"' },
+  { size: 'medium', price: 45.00, description: '11x14"' },
+  { size: 'large', price: 75.00, description: '16x20"' },
+  { size: 'xlarge', price: 125.00, description: '20x24"' }
 ];
 
 async function getImageDetails(imageId: string) {
@@ -115,11 +115,11 @@ export default async function ImagePage({ params }: { params: { id: string } }) 
               <h2 className="text-2xl font-serif text-[#2c392c] mb-4">
                 Available Print Sizes
               </h2>
-              <AddToCartForm 
+              <AddToCartForm
                 imageId={imageDetails.id}
                 title={imageDetails.title}
                 sizes={imageDetails.sizes}
-                image={imageDetails.image}
+                imageUrl={imageDetails.image}
               />
             </div>
           </div>

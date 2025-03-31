@@ -1,23 +1,18 @@
 import { sql } from 'drizzle-orm';
-import { text, timestamp, integer } from 'drizzle-orm/pg-core';
+import { text, timestamp, integer, pgTable } from 'drizzle-orm/pg-core';
 
-export const pageViews = sql`
-  CREATE TABLE IF NOT EXISTS page_views (
-    id SERIAL PRIMARY KEY,
-    page_path TEXT NOT NULL,
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    user_agent TEXT,
-    ip_address TEXT,
-    referrer TEXT
-  )
-`;
+export const pageViews = pgTable('page_views', {
+  id: integer('id').primaryKey(),
+  pagePath: text('page_path').notNull(),
+  timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow(),
+  userAgent: text('user_agent'),
+  ipAddress: text('ip_address'),
+  referrer: text('referrer'),
+});
 
-export const visitors = sql`
-  CREATE TABLE IF NOT EXISTS visitors (
-    id SERIAL PRIMARY KEY,
-    session_id TEXT NOT NULL,
-    first_visit TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_visit TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    total_views INTEGER DEFAULT 1
-  )
-`; 
+export const visitors = pgTable('visitors', {
+  id: integer('id').primaryKey(),
+  sessionId: text('session_id').notNull(),
+  firstVisit: timestamp('first_visit', { withTimezone: true }).defaultNow(),
+  lastVisit: timestamp('last_visit', { withTimezone: true }).defaultNow(),
+}); 

@@ -6,102 +6,84 @@ import { useCart } from '@/contexts/CartContext';
 interface PrintSize {
   size: string;
   price: number;
-  dimensions: string;
+  description: string;
 }
 
 interface AddToCartFormProps {
   imageId: string;
   title: string;
+  imageUrl: string;
   sizes: PrintSize[];
-  image: string;
 }
 
-export default function AddToCartForm({ imageId, title, sizes, image }: AddToCartFormProps) {
-  const [selectedSize, setSelectedSize] = useState<string>(sizes[0].size);
+export default function AddToCartForm({ imageId, title, imageUrl, sizes }: AddToCartFormProps) {
+  const [selectedSize, setSelectedSize] = useState(sizes[0].size);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const { addItem } = useCart();
+  const { addToCart } = useCart();
 
   const selectedPrintSize = sizes.find(s => s.size === selectedSize)!;
 
   const handleAddToCart = async () => {
     setAddingToCart(true);
     try {
-      addItem({
+      await addToCart({
         id: imageId,
         title,
         price: selectedPrintSize.price,
-        size: selectedPrintSize.dimensions,
-        image,
-        quantity
+        size: selectedSize,
+        image: imageUrl,
+        quantity,
       });
-      
-      // Show success message
-      alert('Added to cart successfully!');
     } catch (error) {
-      console.error('Failed to add to cart:', error);
-      alert('Failed to add to cart. Please try again.');
+      console.error('Failed to add item to cart:', error);
     } finally {
       setAddingToCart(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Size Selection */}
-      <div className="grid grid-cols-2 gap-4">
-        {sizes.map((size) => (
-          <button
-            key={size.size}
-            onClick={() => setSelectedSize(size.size)}
-            className={`p-4 rounded-lg border-2 transition-colors ${
-              selectedSize === size.size
-                ? 'border-[#d4a373] bg-[#d4a373]/10'
-                : 'border-gray-200 hover:border-[#d4a373]/50'
-            }`}
-          >
-            <div className="text-lg font-medium text-[#2c392c]">
-              {size.dimensions}
-            </div>
-            <div className="text-[#2c392c]/80">
-              ${size.price.toFixed(2)}
-            </div>
-          </button>
-        ))}
+    <div className="space-y-4">
+      <div>
+        <label htmlFor="size" className="block text-sm font-medium text-gray-700">
+          Print Size
+        </label>
+        <select
+          id="size"
+          value={selectedSize}
+          onChange={(e) => setSelectedSize(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#d4a373] focus:ring-[#d4a373] sm:text-sm"
+        >
+          {sizes.map((size) => (
+            <option key={size.size} value={size.size}>
+              {size.size} - ${size.price.toFixed(2)} - {size.description}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Quantity Selection */}
       <div>
-        <label className="block text-[#2c392c] font-medium mb-2">
+        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
           Quantity
         </label>
         <select
+          id="quantity"
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
-          className="w-24 px-3 py-2 border border-[#d4a373] rounded-md 
-                   focus:outline-none focus:ring-2 focus:ring-[#d4a373]
-                   text-[#2c392c]"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#d4a373] focus:ring-[#d4a373] sm:text-sm"
         >
           {[1, 2, 3, 4, 5].map((num) => (
-            <option key={num} value={num} className="text-[#2c392c]">
+            <option key={num} value={num}>
               {num}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Total Price */}
-      <div className="text-xl font-medium text-[#2c392c]">
-        Total: ${(selectedPrintSize.price * quantity).toFixed(2)}
-      </div>
-
-      {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
         disabled={addingToCart}
-        className="w-full px-6 py-3 bg-[#d4a373] text-white rounded-lg
-                 hover:bg-[#e6c29b] transition-colors disabled:opacity-50
-                 disabled:cursor-not-allowed"
+        className="w-full bg-[#d4a373] text-white py-2 px-4 rounded-md hover:bg-[#ccd5ae] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4a373] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {addingToCart ? 'Adding to Cart...' : 'Add to Cart'}
       </button>

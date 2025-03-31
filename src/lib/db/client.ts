@@ -13,9 +13,8 @@ if (!process.env.DATABASE_URL) {
 
 // Create a singleton pool instance
 let pool: Pool;
-let dbInstance: ReturnType<typeof drizzle>;
 
-export function getPool() {
+function getPool() {
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
@@ -24,12 +23,5 @@ export function getPool() {
   return pool;
 }
 
-export function getDb() {
-  if (!dbInstance) {
-    dbInstance = drizzle(getPool(), { schema });
-  }
-  return dbInstance;
-}
-
-// Export the db instance
-export const db = getDb(); 
+// Create and export the db instance
+export const db = drizzle(getPool(), { schema }); 
