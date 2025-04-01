@@ -29,6 +29,17 @@ const nextConfig = {
   staticPageGenerationTimeout: 120,
   // Configure page extensions
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // Configure build optimization
+  compress: true,
+  // Configure file system
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+    };
+    return config;
+  },
 };
 
 export default nextConfig; 

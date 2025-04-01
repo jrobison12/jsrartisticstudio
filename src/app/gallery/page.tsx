@@ -3,9 +3,8 @@ import Link from "next/link";
 
 // Define categories with valid image paths
 const categories = [
-  { id: 'birds-blooms', name: 'Birds and Blooms', thumbnail: '/images/category-thumbnails/birds-blooms.jpg' },
-  { id: 'landscapes', name: 'Landscapes', thumbnail: '/images/category-thumbnails/landscape.jpg' },
-  { id: 'showcase', name: 'Showcase', thumbnail: '/images/category-thumbnails/showcase.jpg' }
+  { id: 'birds-blooms', name: 'Birds and Blooms', thumbnail: '/images/category-thumbnails/birds.jpg' },
+  { id: 'landscapes', name: 'Landscapes', thumbnail: '/images/category-thumbnails/landscape.jpg' }
 ];
 
 export default function Gallery() {
