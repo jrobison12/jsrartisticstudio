@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/client';
-import { sql } from 'drizzle-orm';
+import { query as db, testConnection } from '@/lib/db/node-client';
+
+export const runtime = 'nodejs';
 
 interface AnalyticsData {
   totalPageViews: number;
@@ -21,31 +22,24 @@ const defaultAnalyticsData: AnalyticsData = {
   lastUpdated: null
 };
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
-  // During build time or when db is not available, return static data
-  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build' || !db) {
-    return NextResponse.json(defaultAnalyticsData);
-  }
-
   try {
     // Test database connection first
-    try {
-      await db.execute(sql`SELECT 1`);
-    } catch (error) {
-      console.error('Database connection test failed:', error);
-      return NextResponse.json(defaultAnalyticsData);
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      console.error('Database connection failed');
+      return NextResponse.json(
+        { error: 'Database connection failed', details: 'Could not connect to the database. Please check your database configuration.' },
+        { status: 503 }
+      );
     }
 
     // Get total page views
-    const totalViewsResult = await db.execute<{ count: number }>(sql`
-      SELECT COUNT(*) as count FROM page_views
-    `);
+    const totalViewsResult = await db('SELECT COUNT(*) as count FROM page_views');
     const totalViews = Number(totalViewsResult.rows[0]?.count || 0);
 
     // Get page views by URL
-    const pageViewsResult = await db.execute<{ url: string; count: number }>(sql`
+    const pageViewsResult = await db(`
       SELECT page_path as url, COUNT(*) as count
       FROM page_views
       GROUP BY page_path
@@ -54,7 +48,7 @@ export async function GET() {
     `);
 
     // Get device type distribution
-    const deviceStatsResult = await db.execute<{ type: string; count: number }>(sql`
+    const deviceStatsResult = await db(`
       SELECT 
         CASE 
           WHEN LOWER(user_agent) LIKE '%mobile%' THEN 'Mobile'
@@ -73,9 +67,9 @@ export async function GET() {
     `);
 
     // Get hourly distribution
-    const hourlyStatsResult = await db.execute<{ hour: number; count: number }>(sql`
+    const hourlyStatsResult = await db(`
       SELECT 
-        EXTRACT(HOUR FROM timestamp) as hour,
+        EXTRACT(HOUR FROM timestamp)::integer as hour,
         COUNT(*) as count
       FROM page_views
       GROUP BY hour
@@ -83,7 +77,7 @@ export async function GET() {
     `);
 
     // Get top referrers
-    const referrerStatsResult = await db.execute<{ referrer: string; count: number }>(sql`
+    const referrerStatsResult = await db(`
       SELECT 
         COALESCE(referrer, 'Direct') as referrer,
         COUNT(*) as count
@@ -94,20 +88,36 @@ export async function GET() {
     `);
 
     // Get last updated timestamp
-    const lastUpdatedResult = await db.execute<{ last_updated: Date }>(sql`
-      SELECT MAX(timestamp) as last_updated FROM page_views
+    const lastUpdatedResult = await db(`
+      SELECT MAX(timestamp)::text as last_updated FROM page_views
     `);
 
+    // Transform the results to match the expected types
     return NextResponse.json({
       totalPageViews: totalViews,
-      pageViews: pageViewsResult.rows,
-      deviceTypes: deviceStatsResult.rows,
-      hourlyDistribution: hourlyStatsResult.rows,
-      topReferrers: referrerStatsResult.rows,
-      lastUpdated: lastUpdatedResult.rows[0]?.last_updated?.toISOString() || null
+      pageViews: pageViewsResult.rows.map(row => ({
+        url: row.url as string,
+        count: Number(row.count)
+      })),
+      deviceTypes: deviceStatsResult.rows.map(row => ({
+        type: row.type as string,
+        count: Number(row.count)
+      })),
+      hourlyDistribution: hourlyStatsResult.rows.map(row => ({
+        hour: Number(row.hour),
+        count: Number(row.count)
+      })),
+      topReferrers: referrerStatsResult.rows.map(row => ({
+        referrer: row.referrer as string,
+        count: Number(row.count)
+      })),
+      lastUpdated: lastUpdatedResult.rows[0]?.last_updated as string || null
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);
-    return NextResponse.json(defaultAnalyticsData);
+    return NextResponse.json(
+      { error: 'Failed to fetch analytics data', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 } 

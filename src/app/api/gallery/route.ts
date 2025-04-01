@@ -77,6 +77,11 @@ async function getImagesFromCategory(categoryPath: string, categoryName: string)
 
 export async function GET(request: Request) {
   try {
+    // Handle the case where request.url is undefined (during static generation)
+    if (!request.url) {
+      return NextResponse.json({ images: [] });
+    }
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category') || 'all';
 
@@ -98,21 +103,13 @@ export async function GET(request: Request) {
             const stats = await stat(itemPath);
             if (stats.isDirectory()) {
               console.log(`${itemPath} is a directory, processing...`);
-              const images = await getImagesFromCategory(itemPath, item);
-              console.log(`Found ${images.length} images in ${item}`);
-              allImages.push(...images);
-            } else {
-              console.log(`${itemPath} is not a directory, skipping...`);
+              const categoryImages = await getImagesFromCategory(itemPath, item);
+              allImages.push(...categoryImages);
             }
           } catch (err) {
-            console.error(`Error processing path ${itemPath}:`, err);
+            console.error(`Error processing ${itemPath}:`, err);
           }
         }
-
-        console.log('Total images found:', allImages.length);
-        
-        // Sort images by ID (timestamp) to show newest first
-        allImages.sort((a, b) => b.id.localeCompare(a.id));
 
         return NextResponse.json({ images: allImages });
       } catch (err) {
@@ -121,21 +118,23 @@ export async function GET(request: Request) {
       }
     }
 
-    // Handle specific category
-    const categoryDir = join(baseDir, category);
-    console.log('Processing specific category:', categoryDir);
-    const images = await getImagesFromCategory(categoryDir, category);
-    console.log(`Found ${images.length} images in ${category}`);
-    
-    // Sort images by ID (timestamp) to show newest first
-    images.sort((a, b) => b.id.localeCompare(a.id));
+    // Process specific category
+    const categoryPath = join(baseDir, category);
+    try {
+      const stats = await stat(categoryPath);
+      if (!stats.isDirectory()) {
+        console.log(`${categoryPath} is not a directory`);
+        return NextResponse.json({ images: [] });
+      }
 
-    return NextResponse.json({ images });
-  } catch (error) {
-    console.error('Gallery fetch error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch gallery images' },
-      { status: 500 }
-    );
+      const images = await getImagesFromCategory(categoryPath, category);
+      return NextResponse.json({ images });
+    } catch (err) {
+      console.error(`Error processing category ${category}:`, err);
+      return NextResponse.json({ images: [] });
+    }
+  } catch (err) {
+    console.error('Error in gallery API:', err);
+    return NextResponse.json({ images: [] });
   }
 } 

@@ -24,9 +24,28 @@ export async function generateStaticParams() {
 // Get images for a category
 async function getImages(category: string): Promise<GalleryImage[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/gallery?category=${category}`, {
+    // During build time, return empty array to allow static generation
+    if (process.env.NEXT_PHASE === 'build') {
+      return [];
+    }
+
+    // Determine base URL based on environment
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+      (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+
+    // Construct full URL
+    const url = new URL(`/api/gallery`, baseUrl);
+    url.searchParams.set('category', category);
+    
+    const response = await fetch(url.toString(), {
       next: { revalidate: 3600 } // Revalidate every hour
     });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch images:', response.status, response.statusText);
+      return [];
+    }
+
     const data = await response.json();
     return data.images || [];
   } catch (error) {

@@ -7,6 +7,9 @@ const categories = [
   { id: 'landscapes', name: 'Landscapes', thumbnail: '/images/category-thumbnails/landscape.jpg' }
 ];
 
+// Configure static generation
+export const dynamic = 'force-static';
+
 export default function Gallery() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -23,6 +26,7 @@ export default function Gallery() {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority={category.id === 'birds-blooms'}
+            unoptimized
           />
           <div className="absolute inset-0 bg-[#2c392c]/60 flex items-center justify-center
                         opacity-0 group-hover:opacity-100 transition-opacity">

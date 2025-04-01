@@ -40,6 +40,20 @@ const nextConfig = {
     };
     return config;
   },
+  // Configure API routes
+  async headers() {
+    return [
+      {
+        source: '/api/analytics/:path*',
+        headers: [
+          {
+            key: 'x-custom-header',
+            value: 'nodejs-runtime'
+          }
+        ]
+      }
+    ];
+  }
 };
 
 export default nextConfig; 
