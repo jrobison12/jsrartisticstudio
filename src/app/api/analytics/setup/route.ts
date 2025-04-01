@@ -1,122 +1,84 @@
 import { NextResponse } from 'next/server';
-import { Pool } from 'pg';
+import { db } from '@/lib/db/client';
+import { sql } from 'drizzle-orm';
 
-let pool: Pool | null = null;
-
-async function getPool() {
-  if (!pool) {
-    try {
-      // First connect to postgres database
-      const initialPool = new Pool({
-        user: process.env.POSTGRES_USER,
-        host: process.env.POSTGRES_HOST,
-        database: 'postgres',
-        password: process.env.POSTGRES_PASSWORD,
-        port: 5432,
-      });
-
-      // Check if our database exists
-      const result = await initialPool.query(
-        "SELECT 1 FROM pg_database WHERE datname = $1",
-        [process.env.POSTGRES_DATABASE]
-      );
-
-      // If database doesn't exist, create it
-      if (result.rowCount === 0) {
-        console.log('Creating database:', process.env.POSTGRES_DATABASE);
-        await initialPool.query(`CREATE DATABASE "${process.env.POSTGRES_DATABASE}"`);
-      }
-
-      // Close the initial connection
-      await initialPool.end();
-
-      // Create a new pool connected to our application database
-      pool = new Pool({
-        user: process.env.POSTGRES_USER,
-        host: process.env.POSTGRES_HOST,
-        database: process.env.POSTGRES_DATABASE,
-        password: process.env.POSTGRES_PASSWORD,
-        port: 5432,
-      });
-
-      // Test the connection
-      await pool.query('SELECT 1');
-      console.log('Successfully connected to database:', process.env.POSTGRES_DATABASE);
-    } catch (error) {
-      console.error('Failed to connect to database:', error);
-      if (pool) {
-        await pool.end();
-      }
-      pool = null;
-      throw error;
-    }
-  }
-  return pool;
-}
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  // During build time or when db is not available, return success
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build' || !db) {
+    return NextResponse.json({ status: 'ok', message: 'Analytics setup skipped during build' });
+  }
+
   try {
     console.log('Starting analytics setup...');
-    const pool = await getPool();
 
-    // Drop the existing table if it exists
-    console.log('Dropping existing analytics_events table...');
-    await pool.query('DROP TABLE IF EXISTS analytics_events');
+    // Test database connection first
+    try {
+      await db.execute(sql`SELECT 1`);
+    } catch (error) {
+      console.error('Database connection test failed:', error);
+      return NextResponse.json({ 
+        status: 'error',
+        message: 'Database connection failed'
+      }, { status: 500 });
+    }
 
-    // Create the analytics_events table
-    console.log('Creating analytics_events table...');
-    await pool.query(`
-      CREATE TABLE analytics_events (
+    // Drop existing tables
+    try {
+      await db.execute(sql`DROP TABLE IF EXISTS page_views`);
+      await db.execute(sql`DROP TABLE IF EXISTS visitors`);
+    } catch (error) {
+      console.error('Error dropping tables:', error);
+    }
+
+    // Create tables
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS page_views (
         id SERIAL PRIMARY KEY,
-        event_type VARCHAR(50) NOT NULL,
-        page_url TEXT NOT NULL,
-        session_id VARCHAR(100) NOT NULL,
+        page_path TEXT NOT NULL,
+        timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         user_agent TEXT,
+        ip_address TEXT,
         referrer TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        session_id TEXT
       )
     `);
 
-    // Verify table creation
-    console.log('Verifying table structure...');
-    const tableInfo = await pool.query(`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'analytics_events'
-      ORDER BY ordinal_position
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS visitors (
+        id SERIAL PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        first_visit TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        last_visit TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
     `);
-    console.log('Table structure:', tableInfo.rows);
 
     // Insert sample data
-    console.log('Inserting sample data...');
-    await pool.query(`
-      INSERT INTO analytics_events (event_type, page_url, session_id, user_agent, referrer)
-      VALUES 
-        ('pageview', '/', 'sample-session-1', 'Mozilla/5.0', 'https://google.com'),
-        ('pageview', '/gallery', 'sample-session-1', 'Mozilla/5.0', 'https://google.com'),
-        ('pageview', '/commissions', 'sample-session-2', 'Mozilla/5.0 Mobile', 'https://twitter.com'),
-        ('pageview', '/about', 'sample-session-3', 'Mozilla/5.0 Tablet', 'https://instagram.com')
+    await db.execute(sql`
+      INSERT INTO visitors (session_id) VALUES 
+      ('sample-session-1'),
+      ('sample-session-2'),
+      ('sample-session-3')
     `);
 
-    // Verify sample data
-    console.log('Verifying sample data...');
-    const sampleData = await pool.query('SELECT * FROM analytics_events');
-    console.log('Sample data count:', sampleData.rowCount);
+    await db.execute(sql`
+      INSERT INTO page_views (page_path, user_agent, referrer, session_id) VALUES 
+      ('/', 'Mozilla/5.0', 'https://google.com', 'sample-session-1'),
+      ('/gallery', 'Mozilla/5.0', 'https://google.com', 'sample-session-1'),
+      ('/about', 'Mozilla/5.0 Mobile', 'https://twitter.com', 'sample-session-2'),
+      ('/contact', 'Mozilla/5.0 Tablet', 'https://instagram.com', 'sample-session-3')
+    `);
 
     return NextResponse.json({ 
-      success: true, 
-      message: 'Analytics table created and initialized successfully',
-      tableStructure: tableInfo.rows,
-      sampleDataCount: sampleData.rowCount
+      status: 'ok',
+      message: 'Analytics setup completed successfully'
     });
   } catch (error) {
     console.error('Error setting up analytics:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to setup analytics',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ 
+      status: 'error',
+      message: 'Failed to set up analytics'
+    }, { status: 500 });
   }
 } 
