@@ -3,24 +3,10 @@ import Link from "next/link";
 
 // Define categories with valid image paths
 const categories = [
-  { id: 'artwork', name: 'Artwork', thumbnail: '/images/artwork/thumb.jpg' },
-  { id: 'birds-blooms', name: 'Birds and Blooms', thumbnail: '/images/birds-blooms/thumb.jpg' },
-  { id: 'birds-interest', name: 'Birds Of Interest', thumbnail: '/images/birds-interest/thumb.jpg' },
-  { id: 'birds-of-prey', name: 'Owls, Eagles and Birds of Prey', thumbnail: '/images/birds-of-prey/thumb.jpg' },
-  { id: 'ducks', name: 'Ducks In A Row', thumbnail: '/images/ducks/thumb.jpg' },
-  { id: 'butterflies', name: 'Butterflies and Moths', thumbnail: '/images/butterflies/thumb.jpg' },
-  { id: 'landscapes', name: 'Landscapes', thumbnail: '/images/landscapes/thumb.jpg' },
-  { id: 'stained-glass', name: 'Stained Glass Artistry', thumbnail: '/images/stained-glass/thumb.jpg' },
-  { id: 'weathered-wood', name: 'Weathered Wood and Water', thumbnail: '/images/weathered-wood/thumb.jpg' },
-  { id: 'wild-wonderful', name: 'Wild and Wonderful', thumbnail: '/images/wild-wonderful/thumb.jpg' }
+  { id: 'birds-blooms', name: 'Birds and Blooms', thumbnail: '/images/category-thumbnails/birds-blooms.jpg' },
+  { id: 'landscapes', name: 'Landscapes', thumbnail: '/images/category-thumbnails/landscape.jpg' },
+  { id: 'showcase', name: 'Showcase', thumbnail: '/images/category-thumbnails/showcase.jpg' }
 ];
-
-// Generate static params for each category
-export async function generateStaticParams() {
-  return categories.map((category) => ({
-    category: category.id,
-  }));
-}
 
 export default function Gallery() {
   return (
@@ -37,7 +23,7 @@ export default function Gallery() {
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={category.id === 'artwork'}
+            priority={category.id === 'birds-blooms'}
           />
           <div className="absolute inset-0 bg-[#2c392c]/60 flex items-center justify-center
                         opacity-0 group-hover:opacity-100 transition-opacity">

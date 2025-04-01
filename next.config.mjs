@@ -25,6 +25,10 @@ const nextConfig = {
   swcMinify: true,
   // Configure build output
   distDir: '.next',
+  // Add static page generation settings
+  staticPageGenerationTimeout: 120,
+  // Configure page extensions
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 };
 
 export default nextConfig; 
