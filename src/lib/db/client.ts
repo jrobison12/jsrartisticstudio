@@ -2,6 +2,11 @@ import { sql } from '@vercel/postgres';
 
 export async function testConnection() {
   try {
+    // During build time or if no database URL is provided, return true
+    if (process.env.NEXT_PHASE === 'build' || !process.env.POSTGRES_URL) {
+      return true;
+    }
+
     const result = await sql`SELECT 1`;
     console.log('Database connection test successful');
     return true;

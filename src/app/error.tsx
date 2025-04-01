@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
 
 export default function Error({
   error,
@@ -16,24 +15,19 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-900 mb-4">500</h1>
-        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Something went wrong!</h2>
-        <p className="text-gray-600 mb-8">We're sorry, but there was an error processing your request.</p>
-        <div className="space-x-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Something went wrong!</h2>
+          <p className="text-gray-600 mb-8">
+            We apologize for the inconvenience. Please try again later.
+          </p>
           <button
             onClick={reset}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            className="bg-[#2c392c] text-white px-6 py-2 rounded-md hover:bg-[#2c392c]/90 transition-colors"
           >
             Try again
           </button>
-          <Link 
-            href="/"
-            className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-          >
-            Return Home
-          </Link>
         </div>
       </div>
     </div>

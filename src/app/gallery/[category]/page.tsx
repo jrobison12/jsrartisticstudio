@@ -16,24 +16,38 @@ interface GalleryImage {
 }
 
 const categoryTitles: { [key: string]: string } = {
-  'birds-blooms': 'Birds & Blooms',
+  'all': 'All',
+  'artwork': 'Artwork',
+  'birds': 'Birds',
+  'birds-blooms': 'Birds and Blooms',
+  'birds-interest': 'Birds Of Interest',
+  'birds-of-prey': 'Owls, Eagles and Birds of Prey',
+  'butterflies': 'Butterflies and Moths',
+  'ducks': 'Ducks In A Row',
+  'elk-expo': 'Winner 2019 Elk Expo Patch Photo Contest',
   'landscapes': 'Landscapes',
-  'all': 'All Artwork'
+  'nature-things': 'Nature of Things... Written Word and Nature Photo',
+  'stained-glass': 'Stained Glass Artistry',
+  'weathered-wood': 'Weathered Wood and Water',
+  'wet-paint': 'Wet Paint... On The Easel... Work in Progress...',
+  'wild-wonderful': 'Wild and Wonderful...'
 };
 
+// Generate static params for all categories
 export async function generateStaticParams() {
-  return [
-    { category: 'birds-blooms' },
-    { category: 'landscapes' },
-    { category: 'all' }
-  ];
+  return Object.keys(categoryTitles).map((category) => ({
+    category,
+  }));
 }
 
+// Generate metadata for each category
 export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
-  const title = categoryTitles[params.category] || 'Gallery';
+  const category = params.category;
+  const title = categoryTitles[category] || 'Gallery';
+  
   return {
     title: `${title} | JSR Artistic Studio`,
-    description: `Browse our collection of ${title.toLowerCase()} artwork.`
+    description: `View our collection of ${title.toLowerCase()} artwork and photography.`,
   };
 }
 
