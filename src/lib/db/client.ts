@@ -1,11 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
-import { config } from 'dotenv';
-import { resolve } from 'path';
-
-// Load environment variables from .env.local
-config({ path: resolve(__dirname, '../../../.env.local') });
 
 // Create a singleton client instance
 let client: postgres.Sql | null = null;
@@ -26,6 +21,8 @@ function getClient() {
       client = postgres(process.env.DATABASE_URL, {
         ssl: 'require',
         max: 1,
+        idle_timeout: 20,
+        connect_timeout: 10,
       });
     } catch (error) {
       console.error('Error creating database client:', error);
