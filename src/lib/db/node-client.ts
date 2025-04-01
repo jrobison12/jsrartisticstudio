@@ -2,11 +2,12 @@ import { Pool } from 'pg';
 
 // Create a connection pool
 const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD,
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  database: process.env.POSTGRES_DATABASE || 'jsrartisticstudio',
+  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' 
+    ? { rejectUnauthorized: false } 
+    : process.env.POSTGRES_URL?.includes('localhost') 
+      ? false 
+      : { rejectUnauthorized: false }
 });
 
 // Test the database connection

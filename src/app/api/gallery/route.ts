@@ -4,6 +4,7 @@ import { join } from 'path';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 interface ImageMetadata {
   title: string;
@@ -59,7 +60,7 @@ async function getImagesFromCategory(categoryPath: string, categoryName: string)
         id,
         title: metadata[id]?.title || defaultTitle,
         category: categoryName,
-        image: `/images/${categoryName}/${file}`,
+        url: `/images/${categoryName}/${file}`,
         alt: metadata[id]?.alt || defaultTitle,
         ...(metadata[id]?.description && { description: metadata[id].description })
       };
@@ -77,8 +78,8 @@ async function getImagesFromCategory(categoryPath: string, categoryName: string)
 
 export async function GET(request: Request) {
   try {
-    // Handle the case where request.url is undefined (during static generation)
-    if (!request.url) {
+    // During build time or if request.url is undefined, return empty array
+    if (!request.url || process.env.NEXT_PHASE === 'build') {
       return NextResponse.json({ images: [] });
     }
 
