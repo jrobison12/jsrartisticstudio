@@ -33,7 +33,7 @@ export async function GET() {
 
   try {
     // Verify admin authentication
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const authToken = cookieStore.get('auth_token');
     if (authToken?.value !== process.env.ADMIN_TOKEN) {
       console.error('Unauthorized access attempt to analytics');
@@ -43,17 +43,9 @@ export async function GET() {
     // Initialize response with default data
     const analyticsData: AnalyticsData = { ...defaultAnalyticsData };
 
-    // Test database connection first
-    try {
-      await db.execute(sql`SELECT 1`);
-    } catch (error) {
-      console.error('Database connection test failed:', error);
-      return NextResponse.json(analyticsData);
-    }
-
     // Get total page views
     try {
-      const totalViewsResult = await db.execute<{ count: number }>(sql`
+      const totalViewsResult = await db.execute(sql`
         SELECT COUNT(*) as count FROM page_views
       `);
       analyticsData.totalViews = Number(totalViewsResult.rows[0]?.count || 0);
@@ -63,7 +55,7 @@ export async function GET() {
 
     // Get unique visitors
     try {
-      const uniqueVisitorsResult = await db.execute<{ count: number }>(sql`
+      const uniqueVisitorsResult = await db.execute(sql`
         SELECT COUNT(*) as count FROM visitors
       `);
       analyticsData.uniqueVisitors = Number(uniqueVisitorsResult.rows[0]?.count || 0);
@@ -73,7 +65,7 @@ export async function GET() {
 
     // Get views by page
     try {
-      const viewsByPage = await db.execute<{ page_path: string; count: number }>(sql`
+      const viewsByPage = await db.execute(sql`
         SELECT page_path, COUNT(*) as count
         FROM page_views
         GROUP BY page_path
@@ -87,7 +79,7 @@ export async function GET() {
 
     // Get recent activity
     try {
-      const recentActivity = await db.execute<{ page_path: string; timestamp: Date; session_id: string }>(sql`
+      const recentActivity = await db.execute(sql`
         SELECT pv.page_path, pv.timestamp, v.session_id
         FROM page_views pv
         LEFT JOIN visitors v ON v.session_id = pv.session_id

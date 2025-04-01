@@ -25,6 +25,8 @@ const nextConfig = {
         fs: false,
         path: false,
         micromatch: false,
+        os: false,
+        crypto: false,
       };
     }
     return config;
