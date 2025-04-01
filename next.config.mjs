@@ -13,7 +13,6 @@ const nextConfig = {
   },
   // Add build optimization settings
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@tremor/react'],
   },
   // Configure output to static

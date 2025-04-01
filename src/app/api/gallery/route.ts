@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { readdir, readFile, stat } from 'fs/promises';
 import { join } from 'path';
-import { headers } from 'next/headers';
+
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 
 interface ImageMetadata {
   title: string;
@@ -75,8 +77,8 @@ async function getImagesFromCategory(categoryPath: string, categoryName: string)
 
 export async function GET(request: Request) {
   try {
-    const headersList = headers();
-    const category = headersList.get('x-category') || 'all';
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category') || 'all';
 
     const baseDir = join(process.cwd(), 'public', 'images');
     console.log('Base directory:', baseDir);
