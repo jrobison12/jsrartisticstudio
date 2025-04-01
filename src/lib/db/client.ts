@@ -16,14 +16,20 @@ function getPool() {
     return null;
   }
 
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set');
-  }
-  
   if (!pool) {
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
+    try {
+      if (!process.env.DATABASE_URL) {
+        console.warn('DATABASE_URL environment variable is not set');
+        return null;
+      }
+
+      pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+      });
+    } catch (error) {
+      console.error('Error creating database pool:', error);
+      return null;
+    }
   }
   return pool;
 }

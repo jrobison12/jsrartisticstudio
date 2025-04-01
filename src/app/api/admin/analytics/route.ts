@@ -18,9 +18,15 @@ const defaultAnalyticsData: AnalyticsData = {
   recentActivity: []
 };
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
-  // During build time, return static data
+  // During build time or when db is not available, return static data
   if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'build') {
+    return NextResponse.json(defaultAnalyticsData);
+  }
+
+  if (!db) {
     return NextResponse.json(defaultAnalyticsData);
   }
 
@@ -35,11 +41,6 @@ export async function GET() {
 
     // Initialize response with default data
     const analyticsData: AnalyticsData = { ...defaultAnalyticsData };
-
-    // If db is null, return default data
-    if (!db) {
-      return NextResponse.json(analyticsData);
-    }
 
     // Test database connection first
     try {
