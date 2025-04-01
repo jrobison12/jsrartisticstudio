@@ -1,141 +1,122 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { readdir, readFile, stat } from 'fs/promises';
-import { join } from 'path';
+import path from 'path';
 
-// Force dynamic rendering for this route
+// Force dynamic API route
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+
+// Skip API calls during build
+const isBuildTime = process.env.NEXT_PHASE === 'build';
 
 interface ImageMetadata {
+  [key: string]: {
+    title: string;
+    alt: string;
+    description?: string;
+  };
+}
+
+interface ImageDetails {
+  id: string;
   title: string;
+  category: string;
+  url: string;
   alt: string;
   description?: string;
 }
 
-interface ImageDetails {
-  [key: string]: ImageMetadata;
-}
-
-async function getImagesFromCategory(categoryPath: string, categoryName: string) {
-  try {
-    // Get all files in the category directory
-    const files = await readdir(categoryPath);
-    
-    // Filter for image files and log what we find
-    const imageFiles = files.filter(file => {
-      const isImage = /\.(webp|jpg|jpeg|png)$/i.test(file);
-      if (isImage) {
-        console.log(`Found image in ${categoryName}:`, file);
-      }
-      return isImage;
-    });
-
-    if (imageFiles.length === 0) {
-      console.log(`No images found in category: ${categoryName}`);
-      return [];
-    }
-
-    // Try to load metadata
-    let metadata: ImageDetails = {};
-    try {
-      const metadataPath = join(categoryPath, 'metadata.json');
-      const data = await readFile(metadataPath, 'utf-8');
-      metadata = JSON.parse(data);
-      console.log(`Loaded metadata for ${categoryName}:`, metadata);
-    } catch (err) {
-      console.log('No metadata file found for category:', categoryName);
-    }
-
-    // Map files to image objects with metadata
-    const images = imageFiles.map(file => {
-      // Extract ID from filename, handling both timestamp-based and regular filenames
-      const id = file.includes('-') ? file.split('-')[0] : file.replace(/\.(webp|jpg|jpeg|png)$/i, '');
-      
-      // Create default title from filename
-      const defaultTitle = file.includes('-') 
-        ? file.split('-').slice(1).join('-').replace(/\.(webp|jpg|jpeg|png)$/i, '')
-        : file.replace(/\.(webp|jpg|jpeg|png)$/i, '');
-      
-      const imageData = {
-        id,
-        title: metadata[id]?.title || defaultTitle,
-        category: categoryName,
-        url: `/images/${categoryName}/${file}`,
-        alt: metadata[id]?.alt || defaultTitle,
-        ...(metadata[id]?.description && { description: metadata[id].description })
-      };
-
-      console.log(`Processed image in ${categoryName}:`, imageData);
-      return imageData;
-    });
-
-    return images;
-  } catch (err) {
-    console.error(`Error processing category ${categoryName}:`, err);
-    return [];
+// Mock data for build time
+const mockImages = [
+  {
+    id: 'placeholder',
+    url: '/images/placeholders/nature.jpg',
+    title: 'Nature',
+    category: 'landscapes',
+    featured: true,
+    description: 'A beautiful nature scene'
   }
+];
+
+// Helper function to get images from a category directory
+async function getImagesFromCategory(category: string): Promise<ImageDetails[]> {
+  if (isBuildTime) {
+    return mockImages.map(img => ({
+      id: img.id,
+      title: img.title,
+      category: img.category,
+      url: img.url,
+      alt: img.title,
+      description: img.description
+    }));
+  }
+
+  const imagesDir = path.join(process.cwd(), 'public', 'images', category);
+  const images: ImageDetails[] = [];
+
+  try {
+    const stats = await stat(imagesDir);
+    if (!stats.isDirectory()) {
+      console.warn(`Path is not a directory: ${imagesDir}`);
+      return images;
+    }
+
+    const files = await readdir(imagesDir);
+    const metadataPath = path.join(imagesDir, 'metadata.json');
+    let metadata: ImageMetadata = {};
+
+    try {
+      const metadataContent = await readFile(metadataPath, 'utf-8');
+      metadata = JSON.parse(metadataContent);
+    } catch (error) {
+      console.warn(`No metadata file found for category: ${category}`);
+    }
+
+    for (const file of files) {
+      if (!file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) continue;
+
+      const filePath = path.join(imagesDir, file);
+      const fileStats = await stat(filePath);
+      if (!fileStats.isFile()) continue;
+
+      const id = file.replace(/\.[^/.]+$/, '');
+      const imageMetadata = metadata[id] || { title: id, alt: id };
+      
+      images.push({
+        id,
+        title: imageMetadata.title,
+        category,
+        url: `/images/${category}/${file}`,
+        alt: imageMetadata.alt,
+        description: imageMetadata.description
+      });
+    }
+  } catch (error) {
+    console.error(`Error processing category ${category}:`, error);
+  }
+
+  return images;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    // During build time or if request.url is undefined, return empty array
-    if (!request.url || process.env.NEXT_PHASE === 'build') {
-      return NextResponse.json({ images: [] });
+    const category = request.nextUrl.searchParams.get('category') || 'all';
+
+    if (isBuildTime) {
+      return NextResponse.json(mockImages);
     }
 
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') || 'all';
-
-    const baseDir = join(process.cwd(), 'public', 'images');
-    console.log('Base directory:', baseDir);
-
-    // Handle 'all' category specially
     if (category === 'all') {
-      try {
-        const items = await readdir(baseDir);
-        console.log('Found items in base directory:', items);
-        const allImages = [];
-
-        // Process each directory
-        for (const item of items) {
-          const itemPath = join(baseDir, item);
-          console.log('Processing path:', itemPath);
-          try {
-            const stats = await stat(itemPath);
-            if (stats.isDirectory()) {
-              console.log(`${itemPath} is a directory, processing...`);
-              const categoryImages = await getImagesFromCategory(itemPath, item);
-              allImages.push(...categoryImages);
-            }
-          } catch (err) {
-            console.error(`Error processing ${itemPath}:`, err);
-          }
-        }
-
-        return NextResponse.json({ images: allImages });
-      } catch (err) {
-        console.error('Error processing all categories:', err);
-        return NextResponse.json({ images: [] });
-      }
+      const categories = ['birds-blooms', 'landscapes', 'wildlife'];
+      const allImages = await Promise.all(
+        categories.map(cat => getImagesFromCategory(cat))
+      );
+      return NextResponse.json(allImages.flat());
     }
 
-    // Process specific category
-    const categoryPath = join(baseDir, category);
-    try {
-      const stats = await stat(categoryPath);
-      if (!stats.isDirectory()) {
-        console.log(`${categoryPath} is not a directory`);
-        return NextResponse.json({ images: [] });
-      }
-
-      const images = await getImagesFromCategory(categoryPath, category);
-      return NextResponse.json({ images });
-    } catch (err) {
-      console.error(`Error processing category ${category}:`, err);
-      return NextResponse.json({ images: [] });
-    }
-  } catch (err) {
-    console.error('Error in gallery API:', err);
-    return NextResponse.json({ images: [] });
+    const images = await getImagesFromCategory(category);
+    return NextResponse.json(images);
+  } catch (error) {
+    console.error('Error in gallery API:', error);
+    return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 });
   }
 } 

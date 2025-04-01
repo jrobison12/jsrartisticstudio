@@ -1,19 +1,48 @@
 import { Pool } from 'pg';
 
-// Create a connection pool
+// Skip database connection during build
+const isBuildTime = process.env.NEXT_PHASE === 'build';
+
+// Create a mock pool for build time
+const mockPool = {
+  query: async () => ({ rows: [] }),
+  end: async () => {},
+  on: () => {},
+  off: () => {},
+  removeListener: () => {},
+  removeAllListeners: () => {},
+};
+
+// Create the actual pool for runtime
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+  connectionString: process.env.POSTGRES_URL,
   ssl: process.env.NODE_ENV === 'production' 
-    ? { rejectUnauthorized: false } 
+    ? {
+        rejectUnauthorized: false,
+        ca: process.env.POSTGRES_CA_CERT,
+      }
     : process.env.POSTGRES_URL?.includes('localhost') 
       ? false 
-      : { rejectUnauthorized: false }
+      : { rejectUnauthorized: false },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
-// Test the database connection
+// Export the appropriate pool based on environment
+export const db = isBuildTime ? mockPool : pool;
+
+// Helper function to execute SQL queries
+export async function query(text: string, params?: any[]) {
+  if (isBuildTime) return { rows: [] };
+  return pool.query(text, params);
+}
+
+// Test database connection
 export async function testConnection() {
+  if (isBuildTime) return true;
   try {
-    const result = await pool.query('SELECT 1');
+    await pool.query('SELECT 1');
     console.log('Database connection successful');
     return true;
   } catch (error) {
@@ -22,17 +51,16 @@ export async function testConnection() {
   }
 }
 
-// Helper function to execute SQL queries
-export async function query(text: string, params?: any[]) {
-  return pool.query(text, params);
-}
-
-// Cleanup function to close the pool
+// Cleanup function
 export async function cleanup() {
+  if (isBuildTime) return;
   try {
     await pool.end();
-    console.log('Database pool has ended');
   } catch (error) {
-    console.error('Error closing database pool:', error);
+    console.error('Error closing database connection:', error);
   }
-} 
+}
+
+// Handle application shutdown
+process.on('SIGTERM', cleanup);
+process.on('SIGINT', cleanup); 
