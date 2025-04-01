@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readdir, readFile, stat } from 'fs/promises';
 import { join } from 'path';
+import { headers } from 'next/headers';
 
 interface ImageMetadata {
   title: string;
@@ -74,12 +75,8 @@ async function getImagesFromCategory(categoryPath: string, categoryName: string)
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-
-    if (!category) {
-      return NextResponse.json({ error: 'Category is required' }, { status: 400 });
-    }
+    const headersList = headers();
+    const category = headersList.get('x-category') || 'all';
 
     const baseDir = join(process.cwd(), 'public', 'images');
     console.log('Base directory:', baseDir);
