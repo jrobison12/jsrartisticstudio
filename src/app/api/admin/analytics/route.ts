@@ -72,7 +72,10 @@ export async function GET() {
         ORDER BY count DESC
         LIMIT 10
       `);
-      analyticsData.viewsByPage = viewsByPage.rows;
+      analyticsData.viewsByPage = viewsByPage.rows.map(row => ({
+        page_path: row.page_path as string,
+        count: Number(row.count)
+      }));
     } catch (error) {
       console.error('Error fetching views by page:', error);
     }
@@ -86,7 +89,11 @@ export async function GET() {
         ORDER BY pv.timestamp DESC
         LIMIT 20
       `);
-      analyticsData.recentActivity = recentActivity.rows;
+      analyticsData.recentActivity = recentActivity.rows.map(row => ({
+        page_path: row.page_path as string,
+        timestamp: new Date(row.timestamp as string),
+        session_id: row.session_id as string
+      }));
     } catch (error) {
       console.error('Error fetching recent activity:', error);
     }
