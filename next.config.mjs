@@ -15,8 +15,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@tremor/react'],
   },
-  // Configure output to static
-  output: 'export',
+  // Configure output to server-side
+  output: 'standalone',
   // Add webpack configuration to handle micromatch issue
   webpack: (config, { isServer }) => {
     if (!isServer) {

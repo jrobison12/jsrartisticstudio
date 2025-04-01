@@ -18,7 +18,8 @@ const defaultAnalyticsData: AnalyticsData = {
   recentActivity: []
 };
 
-export const dynamic = 'force-dynamic';
+// Configure runtime
+export const runtime = 'edge';
 
 export async function GET() {
   // During build time or when db is not available, return static data
