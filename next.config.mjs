@@ -16,7 +16,7 @@ const nextConfig = {
     optimizePackageImports: ['@tremor/react'],
   },
   // Configure output to static
-  output: 'standalone',
+  output: 'export',
   // Add webpack configuration to handle micromatch issue
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -24,10 +24,17 @@ const nextConfig = {
         ...config.resolve.fallback,
         fs: false,
         path: false,
+        micromatch: false,
       };
     }
     return config;
   },
+  // Disable build traces to avoid micromatch issues
+  generateBuildId: async () => 'build',
+  // Optimize build process
+  poweredByHeader: false,
+  reactStrictMode: true,
+  swcMinify: true,
 };
 
 export default nextConfig; 
