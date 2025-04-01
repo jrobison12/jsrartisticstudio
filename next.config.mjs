@@ -23,32 +23,8 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   swcMinify: true,
-  // Add static page generation settings
-  generateStaticParams: async () => {
-    return {
-      // Add any dynamic routes that should be pre-rendered
-    };
-  },
   // Configure build output
   distDir: '.next',
-  // Add webpack configuration for better build performance
-  webpack: (config, { dev, isServer }) => {
-    // Optimize bundle size
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          minSize: 20000,
-          maxSize: 244000,
-          minChunks: 1,
-          maxAsyncRequests: 30,
-          maxInitialRequests: 30,
-        },
-      };
-    }
-    return config;
-  },
 };
 
 export default nextConfig; 
